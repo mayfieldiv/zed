@@ -22,6 +22,7 @@ dirs = "4.0.0"
 futures.workspace = true
 gpui.workspace = true
 libc = "0.2"
+log.workspace = true
 task.workspace = true
 schemars.workspace = true
 serde.workspace = true

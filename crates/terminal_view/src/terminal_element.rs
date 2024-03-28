@@ -649,12 +649,13 @@ impl Element for TerminalElement {
                 let search_matches = self.terminal.read(cx).matches.clone();
 
                 let background_color = theme.colors().terminal_background;
+                let modifiers = cx.modifiers();
 
                 let last_hovered_word = self.terminal.update(cx, |terminal, cx| {
                     terminal.set_size(dimensions);
                     terminal.sync(cx);
                     if self.can_navigate_to_selected_word
-                        && terminal.can_navigate_to_selected_word()
+                        && terminal.can_navigate_to_selected_word(modifiers)
                     {
                         terminal.last_content.last_hovered_word.clone()
                     } else {

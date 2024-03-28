@@ -758,6 +758,7 @@ impl Terminal {
             }
             InternalEvent::FindHyperlink(position, open) => {
                 let prev_hovered_word = self.last_content.last_hovered_word.take();
+                log::warn!("FindHyperlink: {:?} {:?}", position, open,);
 
                 let point = grid_point(
                     *position,
@@ -1094,6 +1095,7 @@ impl Terminal {
 
     pub fn mouse_move(&mut self, e: &MouseMoveEvent, origin: Point<Pixels>) {
         let position = e.position - origin;
+        log::warn!("Mouse move: {:?}", e);
         self.last_mouse_position = Some(position);
         if self.mouse_mode(e.modifiers.shift) {
             let (point, side) = grid_point_and_side(
@@ -1107,7 +1109,7 @@ impl Terminal {
                     self.pty_tx.notify(bytes);
                 }
             }
-        } else if self.cmd_pressed {
+        } else if e.modifiers.command {
             self.word_from_position(Some(position));
         }
     }
@@ -1237,7 +1239,7 @@ impl Terminal {
                 let mouse_cell_index = content_index_for_mouse(position, &self.last_content.size);
                 if let Some(link) = self.last_content.cells[mouse_cell_index].hyperlink() {
                     cx.open_url(link.uri());
-                } else if self.cmd_pressed {
+                } else if e.modifiers.command {
                     self.events
                         .push_back(InternalEvent::FindHyperlink(position, true));
                 }
@@ -1372,8 +1374,8 @@ impl Terminal {
         }
     }
 
-    pub fn can_navigate_to_selected_word(&self) -> bool {
-        self.cmd_pressed && self.hovered_word
+    pub fn can_navigate_to_selected_word(&self, modifiers: Modifiers) -> bool {
+        modifiers.command && self.hovered_word
     }
 
     pub fn task(&self) -> Option<&TaskState> {
